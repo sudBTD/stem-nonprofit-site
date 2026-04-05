@@ -1,14 +1,26 @@
-import { Link } from "react-router-dom";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import type { WorkshopEvent } from "../data/events";
 
 type Props = {
-  event: WorkshopEvent;
+  event: WorkshopEvent & { meeting_link?: string | null };
   variant?: "upcoming" | "past";
 };
 
 export function EventCard({ event, variant = "upcoming" }: Props) {
   const isPast = variant === "past";
+
+  const getButtonContent = () => {
+    if (!event.meeting_link) {
+      return { text: "Coming Soon", isDisabled: true };
+    }
+    const isMeetGoogle = event.meeting_link.includes("meet.google.com");
+    return {
+      text: isMeetGoogle ? "Join Meeting" : "Register Now",
+      isDisabled: false,
+    };
+  };
+
+  const buttonContent = getButtonContent();
 
   return (
     <article className="group flex h-full flex-col rounded-2xl border border-white/10 bg-gradient-to-b from-surface-850/80 to-surface-900/90 p-6 shadow-xl shadow-black/20 transition hover:border-stem-500/35 hover:shadow-stem-500/10">
@@ -45,12 +57,23 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
       </div>
 
       {!isPast ? (
-        <Link
-          to={`/contact?event=${encodeURIComponent(event.title)}`}
-          className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-stem-500 px-4 py-2.5 text-sm font-semibold text-surface-950 transition hover:bg-stem-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stem-300"
-        >
-          RSVP
-        </Link>
+        event.meeting_link ? (
+          <a
+            href={event.meeting_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-stem-500 px-4 py-2.5 text-sm font-semibold text-surface-950 transition hover:bg-stem-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stem-300"
+          >
+            {buttonContent.text}
+          </a>
+        ) : (
+          <button
+            disabled
+            className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-slate-600 px-4 py-2.5 text-sm font-semibold text-slate-400 cursor-not-allowed opacity-60"
+          >
+            {buttonContent.text}
+          </button>
+        )
       ) : (
         <p className="mt-6 text-center text-xs font-medium uppercase tracking-wider text-slate-500">
           Completed

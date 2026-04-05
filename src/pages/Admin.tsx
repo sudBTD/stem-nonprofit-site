@@ -10,7 +10,7 @@ const inputClass =
 const labelClass = "block text-xs font-medium text-slate-400";
 
 const eventColumns =
-  "id, title, description, date, is_past, tutor_id, image_url, location_detailed, attendee_count, impact_summary";
+  "id, title, description, date, is_past, tutor_id, image_url, location_detailed, attendee_count, impact_summary, meeting_link";
 
 export function Admin() {
   const navigate = useNavigate();
@@ -33,6 +33,7 @@ export function Admin() {
   const [evLocationDetailed, setEvLocationDetailed] = useState("");
   const [evAttendeeCount, setEvAttendeeCount] = useState("");
   const [evImpactSummary, setEvImpactSummary] = useState("");
+  const [evMeetingLink, setEvMeetingLink] = useState("");
 
   const [evTitle, setEvTitle] = useState("");
   const [evDate, setEvDate] = useState("");
@@ -214,6 +215,7 @@ export function Admin() {
       const location_detailed = evLocationDetailed.trim() || null;
       const attendee_count = evAttendeeCount.trim() ? parseInt(evAttendeeCount, 10) : null;
       const impact_summary = evImpactSummary.trim() || null;
+      const meeting_link = evMeetingLink.trim() || null;
 
       console.log("[Admin] onCreateEvent: Inserting event with data:", {
         title,
@@ -234,6 +236,7 @@ export function Admin() {
         location_detailed,
         attendee_count,
         impact_summary,
+        meeting_link,
       });
 
       if (insErr) {
@@ -250,6 +253,7 @@ export function Admin() {
       setEvLocationDetailed("");
       setEvAttendeeCount("");
       setEvImpactSummary("");
+      setEvMeetingLink("");
       setMessage("Event created successfully.");
       await refresh();
     } catch (err) {
@@ -1093,6 +1097,19 @@ export function Admin() {
               rows={3}
               className={inputClass}
               placeholder="What impact or key outcomes from this event?"
+            />
+          </div>
+          <div>
+            <label htmlFor="admin-ev-meeting" className={labelClass}>
+              Meeting/Registration Link (optional)
+            </label>
+            <input
+              id="admin-ev-meeting"
+              type="url"
+              value={evMeetingLink}
+              onChange={(e) => setEvMeetingLink(e.target.value)}
+              className={inputClass}
+              placeholder="e.g., https://meet.google.com/abc-defg-hij"
             />
           </div>
           <button
