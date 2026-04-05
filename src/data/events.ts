@@ -18,6 +18,8 @@ export type WorkshopEvent = {
   meetingLink?: string;
   /** Specific time in HH:MM format */
   specificTime?: string;
+  /** Event impact summary */
+  impactSummary?: string;
 };
 
 /** Placeholder — live data comes from Supabase on Events / PastEvents pages */

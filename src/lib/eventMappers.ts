@@ -86,6 +86,7 @@ export function eventRowToWorkshopEvent(row: EventRow): WorkshopEvent {
     attendeeCount: row.attendee_count ?? undefined,
     meetingLink: (row.meeting_link ?? "").trim() || undefined,
     specificTime: row.specific_time ?? undefined,
+    impactSummary: (row.impact_summary ?? "").trim() || undefined,
   };
 }
 

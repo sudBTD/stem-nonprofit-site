@@ -66,6 +66,13 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
           {event.description}
         </p>
 
+        {event.impactSummary ? (
+          <p className="mt-4 rounded-2xl border border-stem-500/20 bg-stem-500/5 px-3 py-3 text-sm leading-relaxed text-stem-100">
+            <span className="font-medium text-stem-300">Impact: </span>
+            {event.impactSummary}
+          </p>
+        ) : null}
+
         {isPast && event.outcome ? (
           <p className="mt-4 rounded-xl border border-stem-500/20 bg-stem-500/5 px-3 py-2 text-xs text-stem-100/90">
             <span className="font-medium text-stem-300">Outcome: </span>
