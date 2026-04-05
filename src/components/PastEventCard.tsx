@@ -75,6 +75,20 @@ export function PastEventCard({ event }: Props) {
             {event.displayImpactSummary ?? event.impactSummary ?? event.outcome ?? "Program impact and outcomes coming soon."}
           </p>
         </div>
+
+        {event.slidesUrl ? (
+          <div className="mt-4">
+            <p className="text-sm font-semibold uppercase tracking-wider text-slate-300">
+              Presentation Slides
+            </p>
+            <iframe
+              src={event.slidesUrl}
+              className="mt-3 w-full aspect-video rounded-xl border border-slate-800 shadow-2xl"
+              allowFullScreen
+              {...({ mozallowfullscreen: "true", webkitallowfullscreen: "true" } as any)}
+            />
+          </div>
+        ) : null}
       </div>
     </article>
   );

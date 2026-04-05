@@ -33,6 +33,7 @@ export function Admin() {
   const [evAttendeeCount, setEvAttendeeCount] = useState("");
   const [evImpactSummary, setEvImpactSummary] = useState("");
   const [evMeetingLink, setEvMeetingLink] = useState("");
+  const [evSlidesUrl, setEvSlidesUrl] = useState("");
   const [evSpecificTime, setEvSpecificTime] = useState("");
 
   const [evTitle, setEvTitle] = useState("");
@@ -216,6 +217,7 @@ export function Admin() {
       const attendee_count = evAttendeeCount.trim() ? parseInt(evAttendeeCount, 10) : null;
       const impact_summary = evImpactSummary.trim() || null;
       const meeting_link = evMeetingLink.trim() || null;
+      const slides_url = evSlidesUrl.trim() || null;
       const specific_time = evSpecificTime.trim() || null;
 
       console.log("[Admin] onCreateEvent: Inserting event with data:", {
@@ -226,6 +228,8 @@ export function Admin() {
         location_detailed,
         attendee_count,
         impact_summary,
+        meeting_link,
+        slides_url,
       });
 
       const { data, error: insErr } = await supabase.from("events").insert({
@@ -238,6 +242,7 @@ export function Admin() {
         attendee_count,
         impact_summary,
         meeting_link,
+        slides_url,
         specific_time,
       });
 
@@ -256,6 +261,7 @@ export function Admin() {
       setEvAttendeeCount("");
       setEvImpactSummary("");
       setEvMeetingLink("");
+      setEvSlidesUrl("");
       setEvSpecificTime("");
       setMessage("Event created successfully.");
       await refresh();
@@ -1126,6 +1132,19 @@ export function Admin() {
               onChange={(e) => setEvMeetingLink(e.target.value)}
               className={inputClass}
               placeholder="e.g., https://meet.google.com/abc-defg-hij"
+            />
+          </div>
+          <div>
+            <label htmlFor="admin-ev-slides" className={labelClass}>
+              Slides Embed URL (optional)
+            </label>
+            <input
+              id="admin-ev-slides"
+              type="url"
+              value={evSlidesUrl}
+              onChange={(e) => setEvSlidesUrl(e.target.value)}
+              className={inputClass}
+              placeholder="e.g., https://docs.google.com/presentation/d/.../embed"
             />
           </div>
           <button
