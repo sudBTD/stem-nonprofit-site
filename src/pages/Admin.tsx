@@ -37,7 +37,6 @@ export function Admin() {
   const [evTitle, setEvTitle] = useState("");
   const [evDate, setEvDate] = useState("");
   const [evDescription, setEvDescription] = useState("");
-  const [evTutorId, setEvTutorId] = useState("");
 
   const [statLabel, setStatLabel] = useState("");
   const [statValue, setStatValue] = useState("");
@@ -211,7 +210,6 @@ export function Admin() {
 
       console.log("[Admin] onCreateEvent: Form data validated. Title:", title, "Date:", date);
 
-      const tutor_id = evTutorId.trim() || null;
       const image_url = evImageUrl.trim() || null;
       const location_detailed = evLocationDetailed.trim() || null;
       const attendee_count = evAttendeeCount.trim() ? parseInt(evAttendeeCount, 10) : null;
@@ -221,7 +219,6 @@ export function Admin() {
         title,
         description,
         date,
-        tutor_id,
         image_url,
         location_detailed,
         attendee_count,
@@ -233,7 +230,6 @@ export function Admin() {
         description,
         date,
         is_past: false,
-        tutor_id,
         image_url,
         location_detailed,
         attendee_count,
@@ -250,7 +246,6 @@ export function Admin() {
       setEvTitle("");
       setEvDate("");
       setEvDescription("");
-      setEvTutorId("");
       setEvImageUrl("");
       setEvLocationDetailed("");
       setEvAttendeeCount("");
@@ -1049,24 +1044,6 @@ export function Admin() {
             />
           </div>
           <div>
-            <label htmlFor="admin-ev-tutor" className={labelClass}>
-              Lead tutor
-            </label>
-            <select
-              id="admin-ev-tutor"
-              value={evTutorId}
-              onChange={(e) => setEvTutorId(e.target.value)}
-              className={inputClass}
-            >
-              <option value="">— Select tutor —</option>
-              {tutors.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
             <label htmlFor="admin-ev-location" className={labelClass}>
               Location Details (optional)
             </label>
@@ -1151,7 +1128,7 @@ export function Admin() {
                   {(ev.title ?? "").trim() || "Untitled"}
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
-                  {formatEventDateDisplay(ev.date)} · Lead: {tutorLabel(ev.tutor_id)}
+                  {formatEventDateDisplay(ev.date)}{ev.tutor_id ? " · Lead: " + tutorLabel(ev.tutor_id) : ""}
                 </p>
                 <p className="mt-2 line-clamp-2 text-sm text-slate-400">
                   {(ev.description ?? "").trim() || "—"}
