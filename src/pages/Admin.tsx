@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, LogOut, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, LogOut, Plus, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { TutorRow, FounderRow, StatRow, TestimonialRow } from "../lib/dbTypes";
 import { eventSelectColumns, formatEventDateDisplay, type EventRow } from "../lib/eventMappers";
@@ -48,6 +48,7 @@ export function Admin() {
   const [testimonialContent, setTestimonialContent] = useState("");
   const [testimonialImageUrl, setTestimonialImageUrl] = useState("");
   const [testimonialImageUploadStatus, setTestimonialImageUploadStatus] = useState<"idle" | "uploading" | "error">("idle");
+  const [selectedTestimonialId, setSelectedTestimonialId] = useState<string | null>(null);
 
   const [founders, setFounders] = useState<FounderRow[]>([]);
   const [founderId, setFounderId] = useState("");
@@ -57,6 +58,53 @@ export function Admin() {
   const [founderExpertise, setFounderExpertise] = useState("");
   const [founderPhotoUrl, setFounderPhotoUrl] = useState("");
   const [founderImageUploadStatus, setFounderImageUploadStatus] = useState<"idle" | "uploading" | "error">("idle");
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+
+  function resetEventForm() {
+    setSelectedEventId(null);
+    setEvTitle("");
+    setEvDate("");
+    setEvDescription("");
+    setEvImageUrl("");
+    setEvImageUploadStatus("idle");
+    setEvLocationDetailed("");
+    setEvAttendeeCount("");
+    setEvImpactSummary("");
+    setEvMeetingLink("");
+    setEvSlidesUrl("");
+    setEvSpecificTime("");
+  }
+
+  function resetTestimonialForm() {
+    setSelectedTestimonialId(null);
+    setTestimonialName("");
+    setTestimonialRole("");
+    setTestimonialContent("");
+    setTestimonialImageUrl("");
+    setTestimonialImageUploadStatus("idle");
+  }
+
+  function onEditEvent(event: EventRow) {
+    setSelectedEventId(event.id);
+    setEvTitle(event.title ?? "");
+    setEvDate(event.date ?? "");
+    setEvDescription(event.description ?? "");
+    setEvImageUrl(event.image_url ?? "");
+    setEvLocationDetailed(event.location_detailed ?? "");
+    setEvAttendeeCount(event.attendee_count?.toString() ?? "");
+    setEvImpactSummary(event.impact_summary ?? "");
+    setEvMeetingLink(event.meeting_link ?? "");
+    setEvSlidesUrl(event.slides_url ?? "");
+    setEvSpecificTime(event.specific_time ?? "");
+  }
+
+  function onEditTestimonial(testimonial: TestimonialRow) {
+    setSelectedTestimonialId(testimonial.id);
+    setTestimonialName(testimonial.name ?? "");
+    setTestimonialRole(testimonial.role ?? "");
+    setTestimonialContent(testimonial.content ?? "");
+    setTestimonialImageUrl(testimonial.image_url ?? "");
+  }
 
   const refresh = useCallback(async () => {
     try {
@@ -186,18 +234,18 @@ export function Admin() {
     }
   }
 
-  async function onCreateEvent(e: FormEvent) {
+  async function onSaveEvent(e: FormEvent) {
     e.preventDefault();
     setMessage(null);
     setError(null);
 
     try {
       // Auth check
-      console.log("[Admin] onCreateEvent: Starting...");
+      console.log("[Admin] onSaveEvent: Starting...");
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        console.error("[Admin] onCreateEvent: User not authenticated");
-        setError("You must be logged in to create events.");
+        console.error("[Admin] onSaveEvent: User not authenticated");
+        setError("You must be logged in to save events.");
         return;
       }
 
@@ -205,12 +253,10 @@ export function Admin() {
       const description = evDescription.trim();
       const date = evDate.trim();
       if (!title || !description || !date) {
-        console.warn("[Admin] onCreateEvent: Missing required fields");
+        console.warn("[Admin] onSaveEvent: Missing required fields");
         setError("Title, description, and date are required.");
         return;
       }
-
-      console.log("[Admin] onCreateEvent: Form data validated. Title:", title, "Date:", date);
 
       const image_url = evImageUrl.trim() || null;
       const location_detailed = evLocationDetailed.trim() || null;
@@ -220,23 +266,10 @@ export function Admin() {
       const slides_url = evSlidesUrl.trim() || null;
       const specific_time = evSpecificTime.trim() || null;
 
-      console.log("[Admin] onCreateEvent: Inserting event with data:", {
+      const payload = {
         title,
         description,
         date,
-        image_url,
-        location_detailed,
-        attendee_count,
-        impact_summary,
-        meeting_link,
-        slides_url,
-      });
-
-      const { data, error: insErr } = await supabase.from("events").insert({
-        title,
-        description,
-        date,
-        is_past: false,
         image_url,
         location_detailed,
         attendee_count,
@@ -244,30 +277,37 @@ export function Admin() {
         meeting_link,
         slides_url,
         specific_time,
-      });
+      };
 
-      if (insErr) {
-        console.error("[Admin] onCreateEvent: Insert failed:", insErr);
-        setError(`Failed to create event: ${insErr.message}`);
-        return;
+      if (selectedEventId) {
+        console.log("[Admin] onSaveEvent: Updating event", selectedEventId, payload);
+        const { data, error: upErr } = await supabase.from("events").update(payload).eq("id", selectedEventId);
+        if (upErr) {
+          console.error("[Admin] onSaveEvent: Update failed:", upErr);
+          setError(`Failed to update event: ${upErr.message}`);
+          return;
+        }
+
+        console.log("[Admin] onSaveEvent: Event updated successfully:", data);
+        setMessage("Event updated successfully.");
+      } else {
+        console.log("[Admin] onSaveEvent: Inserting event with data:", payload);
+        const { data, error: insErr } = await supabase.from("events").insert({ ...payload, is_past: false });
+        if (insErr) {
+          console.error("[Admin] onSaveEvent: Insert failed:", insErr);
+          setError(`Failed to create event: ${insErr.message}`);
+          return;
+        }
+
+        console.log("[Admin] onSaveEvent: Event created successfully:", data);
+        setMessage("Event created successfully.");
       }
 
-      console.log("[Admin] onCreateEvent: Event created successfully:", data);
-      setEvTitle("");
-      setEvDate("");
-      setEvDescription("");
-      setEvImageUrl("");
-      setEvLocationDetailed("");
-      setEvAttendeeCount("");
-      setEvImpactSummary("");
-      setEvMeetingLink("");
-      setEvSlidesUrl("");
-      setEvSpecificTime("");
-      setMessage("Event created successfully.");
+      resetEventForm();
       await refresh();
     } catch (err) {
-      console.error("[Admin] onCreateEvent: Exception:", err);
-      setError("An unexpected error occurred while creating the event.");
+      console.error("[Admin] onSaveEvent: Exception:", err);
+      setError("An unexpected error occurred while saving the event.");
     }
   }
 
@@ -318,18 +358,18 @@ export function Admin() {
     }
   }
 
-  async function onCreateTestimonial(e: FormEvent) {
+  async function onSaveTestimonial(e: FormEvent) {
     e.preventDefault();
     setMessage(null);
     setError(null);
 
     try {
       // Auth check
-      console.log("[Admin] onCreateTestimonial: Starting...");
+      console.log("[Admin] onSaveTestimonial: Starting...");
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        console.error("[Admin] onCreateTestimonial: User not authenticated");
-        setError("You must be logged in to create testimonials.");
+        console.error("[Admin] onSaveTestimonial: User not authenticated");
+        setError("You must be logged in to save testimonials.");
         return;
       }
 
@@ -337,38 +377,43 @@ export function Admin() {
       const role = testimonialRole.trim();
       const content = testimonialContent.trim();
       if (!name || !role || !content) {
-        console.warn("[Admin] onCreateTestimonial: Missing required fields");
+        console.warn("[Admin] onSaveTestimonial: Missing required fields");
         setError("Name, role, and content are required.");
         return;
       }
 
-      console.log("[Admin] onCreateTestimonial: Form data validated. Name:", name, "Role:", role);
+      console.log("[Admin] onSaveTestimonial: Form data validated. Name:", name, "Role:", role);
 
       const image_url = testimonialImageUrl.trim() || null;
+      const payload = { name, role, content, image_url };
 
-      const { data, error: insErr } = await supabase.from("testimonials").insert({
-        name,
-        role,
-        content,
-        image_url,
-      });
+      if (selectedTestimonialId) {
+        const { data, error: upErr } = await supabase.from("testimonials").update(payload).eq("id", selectedTestimonialId);
+        if (upErr) {
+          console.error("[Admin] onSaveTestimonial: Update failed:", upErr);
+          setError(`Failed to update testimonial: ${upErr.message}`);
+          return;
+        }
 
-      if (insErr) {
-        console.error("[Admin] onCreateTestimonial: Insert failed:", insErr);
-        setError(`Failed to create testimonial: ${insErr.message}`);
-        return;
+        console.log("[Admin] onSaveTestimonial: Testimonial updated successfully:", data);
+        setMessage("Testimonial updated successfully.");
+      } else {
+        const { data, error: insErr } = await supabase.from("testimonials").insert(payload);
+        if (insErr) {
+          console.error("[Admin] onSaveTestimonial: Insert failed:", insErr);
+          setError(`Failed to create testimonial: ${insErr.message}`);
+          return;
+        }
+
+        console.log("[Admin] onSaveTestimonial: Testimonial created successfully:", data);
+        setMessage("Testimonial created successfully.");
       }
 
-      console.log("[Admin] onCreateTestimonial: Testimonial created successfully:", data);
-      setTestimonialName("");
-      setTestimonialRole("");
-      setTestimonialContent("");
-      setTestimonialImageUrl("");
-      setMessage("Testimonial created successfully.");
+      resetTestimonialForm();
       await refresh();
     } catch (err) {
-      console.error("[Admin] onCreateTestimonial: Exception:", err);
-      setError("An unexpected error occurred while creating the testimonial.");
+      console.error("[Admin] onSaveTestimonial: Exception:", err);
+      setError("An unexpected error occurred while saving the testimonial.");
     }
   }
 
@@ -1009,8 +1054,8 @@ export function Admin() {
       </section>
 
       <section className="mt-10 rounded-2xl border border-white/10 bg-surface-850/40 p-6 sm:p-8">
-        <h2 className="text-lg font-semibold text-white">Add event</h2>
-        <form onSubmit={onCreateEvent} className="mt-6 space-y-4">
+        <h2 className="text-lg font-semibold text-white">Create or edit event</h2>
+        <form onSubmit={onSaveEvent} className="mt-6 space-y-4">
           <div>
             <label htmlFor="admin-ev-title" className={labelClass}>
               Title
@@ -1147,13 +1192,24 @@ export function Admin() {
               placeholder="e.g., https://docs.google.com/presentation/d/.../embed"
             />
           </div>
-          <button
-            type="submit"
-            className="inline-flex items-center gap-2 rounded-xl bg-stem-500 px-4 py-2.5 text-sm font-semibold text-surface-950 hover:bg-stem-400"
-          >
-            <Plus size={18} aria-hidden />
-            Create event
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="submit"
+              className="inline-flex items-center gap-2 rounded-xl bg-stem-500 px-4 py-2.5 text-sm font-semibold text-surface-950 hover:bg-stem-400"
+            >
+              <Plus size={18} aria-hidden />
+              {selectedEventId ? "Save event" : "Create event"}
+            </button>
+            {selectedEventId ? (
+              <button
+                type="button"
+                onClick={resetEventForm}
+                className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-surface-950/60 px-4 py-2.5 text-sm font-semibold text-slate-200 hover:bg-white/5"
+              >
+                Cancel edit
+              </button>
+            ) : null}
+          </div>
         </form>
       </section>
 
@@ -1189,14 +1245,24 @@ export function Admin() {
                   />
                   Past event
                 </label>
-                <button
-                  type="button"
-                  onClick={() => void onDeleteEvent(ev.id)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-200 hover:bg-red-500/10"
-                >
-                  <Trash2 size={14} aria-hidden />
-                  Delete
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void onEditEvent(ev)}
+                    className="inline-flex items-center gap-1 rounded-lg border border-stem-500/30 bg-surface-950/80 px-3 py-1.5 text-xs font-medium text-stem-100 hover:bg-stem-500/10"
+                  >
+                    <Pencil size={14} aria-hidden />
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void onDeleteEvent(ev.id)}
+                    className="inline-flex items-center gap-1 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-200 hover:bg-red-500/10"
+                  >
+                    <Trash2 size={14} aria-hidden />
+                    Delete
+                  </button>
+                </div>
               </div>
             </li>
           ))}
@@ -1272,8 +1338,8 @@ export function Admin() {
       </section>
 
       <section className="mt-10 rounded-2xl border border-white/10 bg-surface-850/40 p-6 sm:p-8">
-        <h2 className="text-lg font-semibold text-white">Add testimonial</h2>
-        <form onSubmit={onCreateTestimonial} className="mt-6 space-y-4">
+        <h2 className="text-lg font-semibold text-white">Create or edit testimonial</h2>
+        <form onSubmit={onSaveTestimonial} className="mt-6 space-y-4">
           <div>
             <label htmlFor="admin-testimonial-name" className={labelClass}>
               Name
@@ -1335,13 +1401,24 @@ export function Admin() {
               <p className="mt-2 text-xs text-red-300">Upload failed. Try again.</p>
             )}
           </div>
-          <button
-            type="submit"
-            className="inline-flex items-center gap-2 rounded-xl bg-stem-500 px-4 py-2.5 text-sm font-semibold text-surface-950 hover:bg-stem-400"
-          >
-            <Plus size={18} aria-hidden />
-            Create testimonial
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="submit"
+              className="inline-flex items-center gap-2 rounded-xl bg-stem-500 px-4 py-2.5 text-sm font-semibold text-surface-950 hover:bg-stem-400"
+            >
+              <Plus size={18} aria-hidden />
+              {selectedTestimonialId ? "Save testimonial" : "Create testimonial"}
+            </button>
+            {selectedTestimonialId ? (
+              <button
+                type="button"
+                onClick={resetTestimonialForm}
+                className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-surface-950/60 px-4 py-2.5 text-sm font-semibold text-slate-200 hover:bg-white/5"
+              >
+                Cancel edit
+              </button>
+            ) : null}
+          </div>
         </form>
       </section>
 
@@ -1364,14 +1441,24 @@ export function Admin() {
                   <p className="mt-1 text-xs text-stem-300">Has profile image</p>
                 )}
               </div>
-              <button
-                type="button"
-                onClick={() => void onDeleteTestimonial(testimonial.id)}
-                className="inline-flex items-center gap-1 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-200 hover:bg-red-500/10 sm:shrink-0"
-              >
-                <Trash2 size={14} aria-hidden />
-                Delete
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => void onEditTestimonial(testimonial)}
+                  className="inline-flex items-center gap-1 rounded-lg border border-stem-500/30 bg-surface-950/80 px-3 py-1.5 text-xs font-medium text-stem-100 hover:bg-stem-500/10 sm:shrink-0"
+                >
+                  <Pencil size={14} aria-hidden />
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void onDeleteTestimonial(testimonial.id)}
+                  className="inline-flex items-center gap-1 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-200 hover:bg-red-500/10 sm:shrink-0"
+                >
+                  <Trash2 size={14} aria-hidden />
+                  Delete
+                </button>
+              </div>
             </li>
           ))}
         </ul>
