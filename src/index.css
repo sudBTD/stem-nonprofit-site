@@ -1,0 +1,95 @@
+@import "tailwindcss";
+@source "./**/*.{js,ts,jsx,tsx}";
+@source "../index.html";
+
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Primary tokens — use in CSS via var(--color-stem) / var(--color-surface) */
+  --color-stem: #0088e8;
+  --color-surface: #070b12;
+
+  --color-stem-50: #e6f4ff;
+  --color-stem-100: #b3dfff;
+  --color-stem-200: #80caff;
+  --color-stem-300: #4db5ff;
+  --color-stem-400: #1aa0ff;
+  --color-stem-500: #0088e8;
+  --color-stem-600: #006bb5;
+  --color-stem-700: #004e82;
+  --color-surface-950: #070b12;
+  --color-surface-900: #0c111c;
+  --color-surface-850: #121a28;
+  --color-surface-800: #1a2436;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-surface);
+  color: rgb(226 232 240);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Hero: works even if Tailwind utilities fail — uses @theme variables */
+.hero-seedu {
+  position: relative;
+  isolation: isolate;
+  min-height: min(92vh, 56rem);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid color-mix(in srgb, white 8%, transparent);
+}
+
+.hero-seedu__glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse 120% 80% at 85% -10%,
+      color-mix(in srgb, var(--color-stem) 32%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 90% 60% at 5% 100%,
+      color-mix(in srgb, var(--color-stem) 18%, transparent),
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 50% 120%,
+      color-mix(in srgb, var(--color-stem) 12%, transparent),
+      transparent 45%
+    );
+}
+
+.hero-seedu__grid {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.22;
+  background-image:
+    linear-gradient(
+      color-mix(in srgb, white 7%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, white 7%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 65% at 50% 40%, black, transparent);
+}
+
+.hero-seedu__orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(40px);
+  opacity: 0.55;
+  z-index: 0;
+}
