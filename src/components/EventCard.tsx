@@ -1,4 +1,4 @@
-import { Calendar, Clock, MapPin } from "lucide-react";
+import { Calendar, Clock, MapPin, Users } from "lucide-react";
 import type { WorkshopEvent } from "../data/events";
 import { formatTime } from "../lib/eventMappers";
 
@@ -58,8 +58,14 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
           )}
           <li className="flex items-start gap-2">
             <MapPin size={20} className="mt-0.5 shrink-0 text-stem-400" aria-hidden />
-            <span>{event.location}</span>
+            <span>{event.locationDetailed ?? event.location}</span>
           </li>
+          {event.attendeeCount != null ? (
+            <li className="flex items-start gap-2">
+              <Users size={20} className="mt-0.5 shrink-0 text-stem-400" aria-hidden />
+              <span>{event.attendeeCount.toLocaleString()} attendees</span>
+            </li>
+          ) : null}
         </ul>
 
         <p className="mt-4 flex-1 text-sm leading-relaxed text-slate-300">
