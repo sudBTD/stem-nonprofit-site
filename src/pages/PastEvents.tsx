@@ -19,7 +19,7 @@ export function PastEvents() {
       setError(null);
       const { data, error: qError } = await supabase
         .from("events")
-        .select("id, title, description, date, is_past, image_url, location_detailed, attendee_count, impact_summary")
+        .select("id, title, description, date, is_past, image_url, location_detailed, attendee_count, impact_summary, meeting_link, specific_time")
         .eq("is_past", true)
         .order("date", { ascending: false });
 

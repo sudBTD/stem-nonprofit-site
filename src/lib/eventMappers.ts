@@ -13,6 +13,8 @@ export type EventRow = {
   location_detailed?: string | null;
   attendee_count?: number | null;
   impact_summary?: string | null;
+  meeting_link?: string | null;
+  specific_time?: string | null;
 };
 
 function formatDateLabel(raw: string): string {
@@ -54,6 +56,16 @@ export function formatEventDateDisplay(raw: string | null | undefined): string {
   return formatDateLabel(String(raw ?? ""));
 }
 
+/** Format time string (HH:MM or similar) for display */
+export function formatTime(timeStr: string | null | undefined): string {
+  if (!timeStr) return "—";
+  const t = timeStr.trim();
+  if (!t) return "—";
+  // If it looks like HH:MM format, return as-is; otherwise return the raw value
+  if (/^\d{1,2}:\d{2}/.test(t)) return t;
+  return t;
+}
+
 export function isRenderableEventRow(row: unknown): row is EventRow {
   if (!row || typeof row !== "object") return false;
   const r = row as Record<string, unknown>;
@@ -65,13 +77,15 @@ export function eventRowToWorkshopEvent(row: EventRow): WorkshopEvent {
     id: row.id,
     title: (row.title ?? "").trim() || "Untitled event",
     dateLabel: formatDateLabelLong(String(row.date ?? "")),
-    time: "—",
+    time: formatTime(row.specific_time ?? ""),
     location: (row.location_detailed ?? "").trim() || "TBD",
     description: (row.description ?? "").trim() || "",
     outcome: undefined,
     imageUrl: (row.image_url ?? "").trim() || undefined,
     locationDetailed: (row.location_detailed ?? "").trim() || undefined,
     attendeeCount: row.attendee_count ?? undefined,
+    meetingLink: (row.meeting_link ?? "").trim() || undefined,
+    specificTime: row.specific_time ?? undefined,
   };
 }
 

@@ -8,12 +8,16 @@ export type WorkshopEvent = {
   description: string;
   /** Optional note for archive / impact stories */
   outcome?: string;
-  /** Image URL for past events card */
+  /** Image URL for event card */
   imageUrl?: string;
   /** Detailed location string */
   locationDetailed?: string;
   /** Number of attendees */
   attendeeCount?: number;
+  /** Meeting link (Google Meet, registration page, etc.) */
+  meetingLink?: string;
+  /** Specific time in HH:MM format */
+  specificTime?: string;
 };
 
 /** Placeholder — live data comes from Supabase on Events / PastEvents pages */

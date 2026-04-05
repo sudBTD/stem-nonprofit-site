@@ -1,8 +1,9 @@
 import { Calendar, Clock, MapPin } from "lucide-react";
 import type { WorkshopEvent } from "../data/events";
+import { formatTime } from "../lib/eventMappers";
 
 type Props = {
-  event: WorkshopEvent & { meeting_link?: string | null };
+  event: WorkshopEvent;
   variant?: "upcoming" | "past";
 };
 
@@ -10,10 +11,10 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
   const isPast = variant === "past";
 
   const getButtonContent = () => {
-    if (!event.meeting_link) {
+    if (!event.meetingLink) {
       return { text: "Coming Soon", isDisabled: true };
     }
-    const isMeetGoogle = event.meeting_link.includes("meet.google.com");
+    const isMeetGoogle = event.meetingLink.includes("meet.google.com");
     return {
       text: isMeetGoogle ? "Join Meeting" : "Register Now",
       isDisabled: false,
@@ -23,8 +24,23 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
   const buttonContent = getButtonContent();
 
   return (
-    <article className="group flex h-full flex-col rounded-2xl border border-white/10 bg-gradient-to-b from-surface-850/80 to-surface-900/90 p-6 shadow-xl shadow-black/20 transition hover:border-stem-500/35 hover:shadow-stem-500/10">
-      <div className="flex flex-1 flex-col">
+    <article className="group flex h-full flex-col rounded-2xl border border-white/10 bg-gradient-to-b from-surface-850/80 to-surface-900/90 overflow-hidden shadow-xl shadow-black/20 transition hover:border-stem-500/35 hover:shadow-stem-500/10">
+      {/* Event Image */}
+      <div className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-stem-500 to-stem-600 flex items-center justify-center">
+        {event.imageUrl ? (
+          <img
+            src={event.imageUrl}
+            alt={event.title}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-stem-500 to-stem-600 text-white">
+            <span className="text-2xl font-bold">SE Education</span>
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-1 flex-col p-6">
         <h2 className="text-lg font-semibold tracking-tight text-white group-hover:text-stem-200">
           {event.title}
         </h2>
@@ -34,10 +50,12 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
             <Calendar size={20} className="mt-0.5 shrink-0 text-stem-400" aria-hidden />
             <span>{event.dateLabel}</span>
           </li>
-          <li className="flex items-start gap-2">
-            <Clock size={20} className="mt-0.5 shrink-0 text-stem-400" aria-hidden />
-            <span>{event.time}</span>
-          </li>
+          {event.specificTime && (
+            <li className="flex items-start gap-2">
+              <Clock size={20} className="mt-0.5 shrink-0 text-stem-400" aria-hidden />
+              <span>{formatTime(event.specificTime)}</span>
+            </li>
+          )}
           <li className="flex items-start gap-2">
             <MapPin size={20} className="mt-0.5 shrink-0 text-stem-400" aria-hidden />
             <span>{event.location}</span>
@@ -57,25 +75,25 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
       </div>
 
       {!isPast ? (
-        event.meeting_link ? (
+        event.meetingLink ? (
           <a
-            href={event.meeting_link}
+            href={event.meetingLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-stem-500 px-4 py-2.5 text-sm font-semibold text-surface-950 transition hover:bg-stem-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stem-300"
+            className="mx-6 mb-6 inline-flex w-auto items-center justify-center rounded-xl bg-stem-500 px-4 py-2.5 text-sm font-semibold text-surface-950 transition hover:bg-stem-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stem-300"
           >
             {buttonContent.text}
           </a>
         ) : (
           <button
             disabled
-            className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-slate-600 px-4 py-2.5 text-sm font-semibold text-slate-400 cursor-not-allowed opacity-60"
+            className="mx-6 mb-6 inline-flex w-auto items-center justify-center rounded-xl bg-slate-600 px-4 py-2.5 text-sm font-semibold text-slate-400 cursor-not-allowed opacity-60"
           >
             {buttonContent.text}
           </button>
         )
       ) : (
-        <p className="mt-6 text-center text-xs font-medium uppercase tracking-wider text-slate-500">
+        <p className="mx-6 mb-6 text-center text-xs font-medium uppercase tracking-wider text-slate-500">
           Completed
         </p>
       )}

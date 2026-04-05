@@ -10,7 +10,7 @@ const inputClass =
 const labelClass = "block text-xs font-medium text-slate-400";
 
 const eventColumns =
-  "id, title, description, date, is_past, tutor_id, image_url, location_detailed, attendee_count, impact_summary, meeting_link";
+  "id, title, description, date, is_past, tutor_id, image_url, location_detailed, attendee_count, impact_summary, meeting_link, specific_time";
 
 export function Admin() {
   const navigate = useNavigate();
