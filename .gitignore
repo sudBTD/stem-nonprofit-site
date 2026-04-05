@@ -8,3 +8,4 @@ dist-ssr
 .DS_Store
 node_modules/.tmp
 .cache
+.env
