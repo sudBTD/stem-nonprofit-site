@@ -1009,13 +1009,6 @@ export function Admin() {
               className={inputClass}
               required
             />
-            <input
-              id="admin-ev-title"
-              value={evTitle}
-              onChange={(e) => setEvTitle(e.target.value)}
-              className={inputClass}
-              required
-            />
           </div>
           <div>
             <label htmlFor="admin-ev-date" className={labelClass}>
