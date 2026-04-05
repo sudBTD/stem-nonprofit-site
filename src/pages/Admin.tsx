@@ -34,6 +34,7 @@ export function Admin() {
   const [evAttendeeCount, setEvAttendeeCount] = useState("");
   const [evImpactSummary, setEvImpactSummary] = useState("");
   const [evMeetingLink, setEvMeetingLink] = useState("");
+  const [evSpecificTime, setEvSpecificTime] = useState("");
 
   const [evTitle, setEvTitle] = useState("");
   const [evDate, setEvDate] = useState("");
@@ -216,6 +217,7 @@ export function Admin() {
       const attendee_count = evAttendeeCount.trim() ? parseInt(evAttendeeCount, 10) : null;
       const impact_summary = evImpactSummary.trim() || null;
       const meeting_link = evMeetingLink.trim() || null;
+      const specific_time = evSpecificTime.trim() || null;
 
       console.log("[Admin] onCreateEvent: Inserting event with data:", {
         title,
@@ -237,6 +239,7 @@ export function Admin() {
         attendee_count,
         impact_summary,
         meeting_link,
+        specific_time,
       });
 
       if (insErr) {
@@ -254,6 +257,7 @@ export function Admin() {
       setEvAttendeeCount("");
       setEvImpactSummary("");
       setEvMeetingLink("");
+      setEvSpecificTime("");
       setMessage("Event created successfully.");
       await refresh();
     } catch (err) {
@@ -1025,6 +1029,19 @@ export function Admin() {
               onChange={(e) => setEvDate(e.target.value)}
               className={inputClass}
               required
+            />
+          </div>
+          <div>
+            <label htmlFor="admin-ev-time" className={labelClass}>
+              Event Time (optional)
+            </label>
+            <input
+              id="admin-ev-time"
+              type="text"
+              value={evSpecificTime}
+              onChange={(e) => setEvSpecificTime(e.target.value)}
+              className={inputClass}
+              placeholder="e.g., 2:00 PM CST"
             />
           </div>
           <div>
