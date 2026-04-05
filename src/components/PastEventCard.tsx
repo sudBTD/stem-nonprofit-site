@@ -1,5 +1,5 @@
 import type { WorkshopEvent } from "../data/events";
-import { MapPin, Users } from "lucide-react";
+import { Clock, MapPin, Users } from "lucide-react";
 
 type Props = {
   event: WorkshopEvent;
@@ -28,20 +28,26 @@ export function PastEventCard({ event }: Props) {
           <h2 className="text-xl font-semibold tracking-tight text-white group-hover:text-stem-200">
             {event.title}
           </h2>
-          <p className="mt-2 text-sm font-medium text-stem-400">
-            {event.dateLabel}
-          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm font-medium text-stem-400">
+            <span>{event.dateLabel}</span>
+            {event.displayTime ? (
+              <span className="inline-flex items-center gap-2 text-slate-400">
+                <Clock size={16} className="text-slate-500" aria-hidden />
+                {event.displayTime}
+              </span>
+            ) : null}
+          </div>
         </div>
 
         {/* Location */}
-        {event.locationDetailed && (
+        {(event.displayLocation || event.location) && (
           <div className="mt-4 flex items-start gap-2">
             <MapPin
               size={18}
               className="mt-0.5 shrink-0 text-slate-500"
               aria-hidden
             />
-            <p className="text-sm text-slate-400">{event.locationDetailed}</p>
+            <p className="text-sm text-slate-400">{event.displayLocation || event.location}</p>
           </div>
         )}
 
@@ -61,25 +67,14 @@ export function PastEventCard({ event }: Props) {
         </p>
 
         {/* Impact Summary Box */}
-        {event.outcome ? (
-          <div className="mt-6 rounded-xl bg-slate-800/40 px-4 py-3.5 border border-slate-700/50">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
-              Impact Summary
-            </p>
-            <p className="text-sm text-slate-300">
-              {event.outcome}
-            </p>
-          </div>
-        ) : (
-          <div className="mt-6 rounded-xl bg-slate-800/40 px-4 py-3.5 border border-slate-700/50">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
-              Impact Summary
-            </p>
-            <p className="text-sm text-slate-400 italic">
-              Program impact and outcomes coming soon.
-            </p>
-          </div>
-        )}
+        <div className="mt-6 rounded-xl bg-slate-800/40 px-4 py-3.5 border border-slate-700/50">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+            Impact Summary
+          </p>
+          <p className="text-sm text-slate-300">
+            {event.displayImpactSummary ?? event.impactSummary ?? event.outcome ?? "Program impact and outcomes coming soon."}
+          </p>
+        </div>
       </div>
     </article>
   );

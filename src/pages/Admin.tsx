@@ -3,14 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, LogOut, Plus, Trash2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { TutorRow, FounderRow, StatRow, TestimonialRow } from "../lib/dbTypes";
-import { formatEventDateDisplay, type EventRow } from "../lib/eventMappers";
+import { eventSelectColumns, formatEventDateDisplay, type EventRow } from "../lib/eventMappers";
 
 const inputClass =
   "mt-1.5 w-full rounded-xl border border-white/10 bg-surface-950/80 px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-stem-500/50 focus:outline-none focus:ring-2 focus:ring-stem-500/30";
 const labelClass = "block text-xs font-medium text-slate-400";
 
-const eventColumns =
-  "id, title, description, date, is_past, tutor_id, image_url, location_detailed, attendee_count, impact_summary, meeting_link, specific_time";
+const eventColumns = `${eventSelectColumns}, tutor_id`;
 
 export function Admin() {
   const navigate = useNavigate();

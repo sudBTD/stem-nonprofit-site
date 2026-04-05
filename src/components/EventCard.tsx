@@ -22,6 +22,9 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
   };
 
   const buttonContent = getButtonContent();
+  const displayTime = event.displayTime;
+  const displayLocation = event.displayLocation ?? event.location;
+  const impactSummary = event.displayImpactSummary ?? event.impactSummary;
 
   return (
     <article className="group flex h-full flex-col rounded-2xl border border-white/10 bg-gradient-to-b from-surface-850/80 to-surface-900/90 overflow-hidden shadow-xl shadow-black/20 transition hover:border-stem-500/35 hover:shadow-stem-500/10">
@@ -50,15 +53,15 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
             <Calendar size={20} className="mt-0.5 shrink-0 text-stem-400" aria-hidden />
             <span>{event.dateLabel}</span>
           </li>
-          {event.specificTime && (
+          {displayTime && (
             <li className="flex items-start gap-2">
               <Clock size={20} className="mt-0.5 shrink-0 text-stem-400" aria-hidden />
-              <span>{formatTime(event.specificTime)}</span>
+              <span>{formatTime(displayTime)}</span>
             </li>
           )}
           <li className="flex items-start gap-2">
             <MapPin size={20} className="mt-0.5 shrink-0 text-stem-400" aria-hidden />
-            <span>{event.locationDetailed ?? event.location}</span>
+            <span>{displayLocation}</span>
           </li>
           {event.attendeeCount != null ? (
             <li className="flex items-start gap-2">
@@ -72,11 +75,29 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
           {event.description}
         </p>
 
-        {event.impactSummary ? (
-          <p className="mt-4 rounded-2xl border border-stem-500/20 bg-stem-500/5 px-3 py-3 text-sm leading-relaxed text-stem-100">
-            <span className="font-medium text-stem-300">Impact: </span>
-            {event.impactSummary}
-          </p>
+        {impactSummary ? (
+          <div className="mt-4 rounded-2xl border border-stem-500/20 bg-stem-500/5 px-3 py-3 text-sm leading-relaxed text-stem-100">
+            <span className="font-medium text-stem-300 uppercase tracking-wider">
+              Impact Summary
+            </span>
+            <p className="mt-2 text-sm leading-relaxed text-stem-100">
+              {impactSummary}
+            </p>
+          </div>
+        ) : null}
+
+        {event.slidesUrl ? (
+          <div className="mt-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">
+              Presentation Slides
+            </h3>
+            <iframe
+              src={event.slidesUrl}
+              className="mt-3 w-full aspect-video rounded-xl border border-slate-800 shadow-2xl"
+              allowFullScreen
+              {...({ mozallowfullscreen: "true", webkitallowfullscreen: "true" } as any)}
+            />
+          </div>
         ) : null}
 
         {isPast && event.outcome ? (

@@ -1,5 +1,8 @@
 import type { WorkshopEvent } from "../data/events";
 
+export const eventSelectColumns =
+  "id, title, description, date, is_past, image_url, location_detailed, attendee_count, impact_summary, meeting_link, specific_time, slides_url";
+
 /** Row shape from Supabase `events` — fields may be missing on old or partial rows */
 export type EventRow = {
   id: string;
@@ -15,7 +18,14 @@ export type EventRow = {
   impact_summary?: string | null;
   meeting_link?: string | null;
   specific_time?: string | null;
+  slides_url?: string | null;
 };
+
+function normalizeOptionalString(value: unknown): string | undefined {
+  const normalized = String(value ?? "").trim();
+  return normalized || undefined;
+}
+
 
 function formatDateLabel(raw: string): string {
   const t = raw.trim();
@@ -57,11 +67,9 @@ export function formatEventDateDisplay(raw: string | null | undefined): string {
 }
 
 /** Format time string (HH:MM or similar) for display */
-export function formatTime(timeStr: string | null | undefined): string {
-  if (!timeStr) return "—";
-  const t = timeStr.trim();
+export function formatTime(timeStr: unknown): string {
+  const t = String(timeStr ?? "").trim();
   if (!t) return "—";
-  // If it looks like HH:MM format, return as-is; otherwise return the raw value
   if (/^\d{1,2}:\d{2}/.test(t)) return t;
   return t;
 }
@@ -73,20 +81,34 @@ export function isRenderableEventRow(row: unknown): row is EventRow {
 }
 
 export function eventRowToWorkshopEvent(row: EventRow): WorkshopEvent {
+  const title = normalizeOptionalString(row.title) ?? "Untitled event";
+  const description = normalizeOptionalString(row.description) ?? "";
+  const imageUrl = normalizeOptionalString(row.image_url);
+  const locationDetailed = normalizeOptionalString(row.location_detailed);
+  const impactSummary = normalizeOptionalString(row.impact_summary);
+  const slidesUrl = normalizeOptionalString(row.slides_url);
+  const specificTime = normalizeOptionalString(row.specific_time);
+  const formattedTime = formatTime(specificTime);
+  const displayLocation = locationDetailed || "TBD";
+
   return {
     id: row.id,
-    title: (row.title ?? "").trim() || "Untitled event",
+    title,
     dateLabel: formatDateLabelLong(String(row.date ?? "")),
-    time: formatTime(row.specific_time ?? ""),
-    location: (row.location_detailed ?? "").trim() || "TBD",
-    description: (row.description ?? "").trim() || "",
+    time: formattedTime,
+    location: displayLocation,
+    description,
     outcome: undefined,
-    imageUrl: (row.image_url ?? "").trim() || undefined,
-    locationDetailed: (row.location_detailed ?? "").trim() || undefined,
+    imageUrl,
+    locationDetailed,
+    displayLocation,
     attendeeCount: row.attendee_count ?? undefined,
-    meetingLink: (row.meeting_link ?? "").trim() || undefined,
-    specificTime: row.specific_time ?? undefined,
-    impactSummary: (row.impact_summary ?? "").trim() || undefined,
+    meetingLink: normalizeOptionalString(row.meeting_link),
+    specificTime,
+    displayTime: specificTime ? formattedTime : undefined,
+    slidesUrl,
+    impactSummary,
+    displayImpactSummary: impactSummary,
   };
 }
 

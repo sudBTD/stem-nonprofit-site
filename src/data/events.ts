@@ -18,8 +18,16 @@ export type WorkshopEvent = {
   meetingLink?: string;
   /** Specific time in HH:MM format */
   specificTime?: string;
+  /** Google Slides embed URL for presentation slides */
+  slidesUrl?: string;
   /** Event impact summary */
   impactSummary?: string;
+  /** Render-ready location value */
+  displayLocation?: string;
+  /** Render-ready time value */
+  displayTime?: string;
+  /** Render-ready summary value */
+  displayImpactSummary?: string;
 };
 
 /** Placeholder — live data comes from Supabase on Events / PastEvents pages */

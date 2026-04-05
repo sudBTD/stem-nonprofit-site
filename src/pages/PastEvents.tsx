@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { CalendarClock } from "lucide-react";
 import { PastEventCard } from "../components/PastEventCard";
 import type { WorkshopEvent } from "../data/events";
-import { mapEventRowsToWorkshopEvents } from "../lib/eventMappers";
+import { eventSelectColumns, mapEventRowsToWorkshopEvents } from "../lib/eventMappers";
 import { supabase } from "../lib/supabase";
 
 export function PastEvents() {
@@ -19,7 +19,7 @@ export function PastEvents() {
       setError(null);
       const { data, error: qError } = await supabase
         .from("events")
-        .select("id, title, description, date, is_past, image_url, location_detailed, attendee_count, impact_summary, meeting_link, specific_time")
+        .select(eventSelectColumns)
         .eq("is_past", true)
         .order("date", { ascending: false });
 
