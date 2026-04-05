@@ -1,6 +1,7 @@
-import { Calendar, Clock, MapPin, Users } from "lucide-react";
+import { Calendar, Clock, MapPin, Users, Maximize, ExternalLink } from "lucide-react";
 import type { WorkshopEvent } from "../data/events";
 import { formatTime } from "../lib/eventMappers";
+import { useRef } from "react";
 
 type Props = {
   event: WorkshopEvent;
@@ -9,6 +10,7 @@ type Props = {
 
 export function EventCard({ event, variant = "upcoming" }: Props) {
   const isPast = variant === "past";
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const getButtonContent = () => {
     if (!event.meetingLink) {
@@ -94,9 +96,28 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
             <iframe
               src={event.slidesUrl}
               className="mt-3 w-full aspect-video rounded-xl border border-slate-800 shadow-2xl"
-              allowFullScreen
+              allowFullScreen={true}
               {...({ mozallowfullscreen: "true", webkitallowfullscreen: "true" } as any)}
+              ref={iframeRef}
             />
+            <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
+              <button
+                onClick={() => iframeRef.current?.requestFullscreen()}
+                className="flex items-center gap-1 hover:text-cyan-400 transition-colors"
+              >
+                <Maximize size={16} />
+                View Fullscreen
+              </button>
+              <a
+                href={event.slidesUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 hover:text-cyan-400 transition-colors"
+              >
+                <ExternalLink size={16} />
+                Open in New Window
+              </a>
+            </div>
           </div>
         ) : null}
 
