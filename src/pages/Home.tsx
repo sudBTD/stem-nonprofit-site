@@ -79,7 +79,16 @@ export function Home() {
             </h1>
 
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-400">
-              <span className="text-slate-200">seedu.fyi</span> runs immersive
+              <span 
+                className="font-semibold"
+                style={{
+                  backgroundImage: 'linear-gradient(to right, #60a5fa, #06b6d4)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  color: 'transparent'
+                }}
+              >seedu</span> runs immersive
               workshops and mentorship that feel like the real thing—because
               they are. No prerequisites except curiosity.
             </p>
@@ -153,7 +162,16 @@ export function Home() {
                 Meet the Founder
               </p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                Visionary Behind SE Education
+                Visionary Behind <span 
+                  className="font-semibold"
+                  style={{
+                    backgroundImage: 'linear-gradient(to right, #60a5fa, #06b6d4)',
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    color: 'transparent'
+                  }}
+                >seedu</span>
               </h2>
             </div>
 

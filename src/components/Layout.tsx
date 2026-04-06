@@ -51,15 +51,24 @@ export function Layout({
               {logoImageSrc ? (
                 <img
                   src={logoImageSrc}
-                  alt="seedu.fyi logo"
+                  alt="seedu logo"
                   className="h-9 w-9 object-contain"
                 />
               ) : LogoIcon ? (
                 <LogoIcon size={20} className="text-white" aria-hidden />
               ) : null}
             </span>
-            <span className="font-semibold tracking-tight">
-              seedu<span style={{ color: "var(--color-stem)" }}>.fyi</span>
+            <span 
+              className="font-semibold"
+              style={{
+                backgroundImage: 'linear-gradient(to right, #60a5fa, #06b6d4)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                color: 'transparent'
+              }}
+            >
+              seedu
             </span>
           </NavLink>
 
@@ -130,14 +139,23 @@ export function Layout({
       >
         <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div>
-            <p className="font-semibold text-white">seedu.fyi</p>
+            <p 
+              className="font-semibold"
+              style={{
+                backgroundImage: 'linear-gradient(to right, #60a5fa, #06b6d4)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                color: 'transparent'
+              }}
+            >seedu</p>
             <p className="mt-1 max-w-md text-sm text-slate-400">
               A non-profit opening doors to science, technology, engineering, and
               mathematics—with rigor, care, and belonging.
             </p>
           </div>
           <p className="text-xs text-slate-500">
-            © {new Date().getFullYear()} seedu.fyi. All rights reserved.
+            © {new Date().getFullYear()} seedu. All rights reserved.
           </p>
         </div>
       </footer>

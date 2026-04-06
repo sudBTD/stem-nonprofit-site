@@ -40,7 +40,16 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
           />
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-stem-500 to-stem-600 text-white">
-            <span className="text-2xl font-bold">SE Education</span>
+            <span 
+              className="text-2xl font-semibold"
+              style={{
+                backgroundImage: 'linear-gradient(to right, #60a5fa, #06b6d4)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                color: 'transparent'
+              }}
+            >seedu</span>
           </div>
         )}
       </div>
