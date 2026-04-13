@@ -2,6 +2,7 @@ import { Calendar, Clock, MapPin, Users, Maximize, ExternalLink } from "lucide-r
 import type { WorkshopEvent } from "../data/events";
 import { formatTime } from "../lib/eventMappers";
 import { useRef } from "react";
+import { sanitizeExternalUrl } from "../lib/security";
 
 type Props = {
   event: WorkshopEvent;
@@ -11,12 +12,15 @@ type Props = {
 export function EventCard({ event, variant = "upcoming" }: Props) {
   const isPast = variant === "past";
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const safeMeetingLink = sanitizeExternalUrl(event.meetingLink);
+  const safeSlidesUrl = sanitizeExternalUrl(event.slidesUrl, { allowHosts: ["docs.google.com"] });
+  const safeImageUrl = sanitizeExternalUrl(event.imageUrl);
 
   const getButtonContent = () => {
-    if (!event.meetingLink) {
+    if (!safeMeetingLink) {
       return { text: "Coming Soon", isDisabled: true };
     }
-    const isMeetGoogle = event.meetingLink.includes("meet.google.com");
+    const isMeetGoogle = safeMeetingLink.includes("meet.google.com");
     return {
       text: isMeetGoogle ? "Join Meeting" : "Register Now",
       isDisabled: false,
@@ -32,9 +36,9 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
     <article className="group flex h-full flex-col rounded-2xl border border-white/10 bg-gradient-to-b from-surface-850/80 to-surface-900/90 overflow-hidden shadow-xl shadow-black/20 transition hover:border-stem-500/35 hover:shadow-stem-500/10">
       {/* Event Image */}
       <div className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-stem-500 to-stem-600 flex items-center justify-center">
-        {event.imageUrl ? (
+        {safeImageUrl ? (
           <img
-            src={event.imageUrl}
+            src={safeImageUrl}
             alt={event.title}
             className="h-full w-full object-cover"
           />
@@ -97,16 +101,19 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
           </div>
         ) : null}
 
-        {event.slidesUrl ? (
+        {safeSlidesUrl ? (
           <div className="mt-4">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">
               Presentation Slides
             </h3>
             <iframe
-              src={event.slidesUrl}
+              src={safeSlidesUrl}
               className="mt-3 w-full aspect-video rounded-xl border border-slate-800 shadow-2xl"
               allowFullScreen={true}
               {...({ mozallowfullscreen: "true", webkitallowfullscreen: "true" } as any)}
+              loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
               ref={iframeRef}
             />
             <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
@@ -118,7 +125,7 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
                 View Fullscreen
               </button>
               <a
-                href={event.slidesUrl}
+                href={safeSlidesUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 hover:text-cyan-400 transition-colors"
@@ -139,9 +146,9 @@ export function EventCard({ event, variant = "upcoming" }: Props) {
       </div>
 
       {!isPast ? (
-        event.meetingLink ? (
+        safeMeetingLink ? (
           <a
-            href={event.meetingLink}
+            href={safeMeetingLink}
             target="_blank"
             rel="noopener noreferrer"
             className="mx-6 mb-6 inline-flex w-auto items-center justify-center rounded-xl bg-stem-500 px-4 py-2.5 text-sm font-semibold text-surface-950 transition hover:bg-stem-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stem-300"

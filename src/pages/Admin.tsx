@@ -4,6 +4,7 @@ import { ArrowLeft, LogOut, Plus, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { TutorRow, FounderRow, StatRow, TestimonialRow } from "../lib/dbTypes";
 import { eventSelectColumns, formatEventDateDisplay, type EventRow } from "../lib/eventMappers";
+import { sanitizeExternalUrl } from "../lib/security";
 
 const inputClass =
   "mt-1.5 w-full rounded-xl border border-white/10 bg-surface-950/80 px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-stem-500/50 focus:outline-none focus:ring-2 focus:ring-stem-500/30";
@@ -258,12 +259,34 @@ export function Admin() {
         return;
       }
 
-      const image_url = evImageUrl.trim() || null;
+      const rawImageUrl = evImageUrl.trim();
+      const rawMeetingLink = evMeetingLink.trim();
+      const rawSlidesUrl = evSlidesUrl.trim();
+
+      const image_url = rawImageUrl ? sanitizeExternalUrl(rawImageUrl) : null;
+      const meeting_link = rawMeetingLink ? sanitizeExternalUrl(rawMeetingLink) : null;
+      const slides_url = rawSlidesUrl
+        ? sanitizeExternalUrl(rawSlidesUrl, { allowHosts: ["docs.google.com"] })
+        : null;
+
+      if (rawImageUrl && !image_url) {
+        setError("Event image URL must be a valid http(s) URL.");
+        return;
+      }
+
+      if (rawMeetingLink && !meeting_link) {
+        setError("Meeting/registration link must be a valid http(s) URL.");
+        return;
+      }
+
+      if (rawSlidesUrl && !slides_url) {
+        setError("Slides URL must be a valid Google Docs embed URL.");
+        return;
+      }
+
       const location_detailed = evLocationDetailed.trim() || null;
       const attendee_count = evAttendeeCount.trim() ? parseInt(evAttendeeCount, 10) : null;
       const impact_summary = evImpactSummary.trim() || null;
-      const meeting_link = evMeetingLink.trim() || null;
-      const slides_url = evSlidesUrl.trim() || null;
       const specific_time = evSpecificTime.trim() || null;
 
       const payload = {
@@ -384,7 +407,13 @@ export function Admin() {
 
       console.log("[Admin] onSaveTestimonial: Form data validated. Name:", name, "Role:", role);
 
-      const image_url = testimonialImageUrl.trim() || null;
+      const rawImageUrl = testimonialImageUrl.trim();
+      const image_url = rawImageUrl ? sanitizeExternalUrl(rawImageUrl) : null;
+      if (rawImageUrl && !image_url) {
+        setError("Testimonial image URL must be a valid http(s) URL.");
+        return;
+      }
+
       const payload = { name, role, content, image_url };
 
       if (selectedTestimonialId) {

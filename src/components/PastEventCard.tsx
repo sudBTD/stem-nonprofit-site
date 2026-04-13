@@ -1,18 +1,22 @@
 import type { WorkshopEvent } from "../data/events";
 import { Clock, MapPin, Users } from "lucide-react";
+import { sanitizeExternalUrl } from "../lib/security";
 
 type Props = {
   event: WorkshopEvent;
 };
 
 export function PastEventCard({ event }: Props) {
+  const safeImageUrl = sanitizeExternalUrl(event.imageUrl);
+  const safeSlidesUrl = sanitizeExternalUrl(event.slidesUrl, { allowHosts: ["docs.google.com"] });
+
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface-850/50 shadow-lg transition hover:border-stem-500/35 hover:shadow-stem-500/15">
       {/* Image Section */}
-      {event.imageUrl ? (
+      {safeImageUrl ? (
         <div className="relative w-full overflow-hidden bg-surface-900 pt-[66.67%]">
           <img
-            src={event.imageUrl}
+            src={safeImageUrl}
             alt={event.title}
             className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-105"
           />
@@ -76,16 +80,19 @@ export function PastEventCard({ event }: Props) {
           </p>
         </div>
 
-        {event.slidesUrl ? (
+        {safeSlidesUrl ? (
           <div className="mt-4">
             <p className="text-sm font-semibold uppercase tracking-wider text-slate-300">
               Presentation Slides
             </p>
             <iframe
-              src={event.slidesUrl}
+              src={safeSlidesUrl}
               className="mt-3 w-full aspect-video rounded-xl border border-slate-800 shadow-2xl"
               allowFullScreen
               {...({ mozallowfullscreen: "true", webkitallowfullscreen: "true" } as any)}
+              loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
             />
           </div>
         ) : null}

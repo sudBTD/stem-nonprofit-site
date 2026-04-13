@@ -8,6 +8,7 @@ function envString(key: "VITE_SUPABASE_URL" | "VITE_SUPABASE_ANON_KEY"): string 
 
 const supabaseUrl = envString("VITE_SUPABASE_URL");
 const supabaseKey = envString("VITE_SUPABASE_ANON_KEY");
+const looksLikePrivilegedKey = /service_role|sb_secret_/i.test(supabaseKey);
 
 const missing: string[] = [];
 if (!supabaseUrl) missing.push("VITE_SUPABASE_URL");
@@ -21,13 +22,20 @@ if (missing.length > 0) {
   );
 }
 
+if (looksLikePrivilegedKey) {
+  console.error(
+    "[Supabase] VITE_SUPABASE_ANON_KEY appears to be privileged (service/secret key).",
+    "Never expose privileged Supabase keys in frontend code.",
+  );
+}
+
 /**
  * createClient requires non-empty URL/key; placeholders avoid a crash so the app can render
  * and show errors until .env.local is configured.
  */
 export const supabase = createClient(
   supabaseUrl || "https://missing-env.supabase.co",
-  supabaseKey || "missing-anon-key",
+  looksLikePrivilegedKey ? "missing-anon-key" : supabaseKey || "missing-anon-key",
   {
     auth: {
       persistSession: true,
